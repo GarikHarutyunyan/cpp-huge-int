@@ -13,10 +13,17 @@ int to_int(char char_num) {
 char to_char(int num) {
     return num + '0';
 }
+
+string concatZero(string s, int n) {
+    for (int i = 0; i < n; i++) {
+        s+='0';
+    }
+    return s;
+}
+
 class HugeInt
 {
 public:
-    // Constructors
     // Constructor for string values
     HugeInt(string value) {
         Construct(value);
@@ -31,64 +38,98 @@ public:
     // Constructor for integers
     HugeInt(int value) {
         string strValue = to_string(value);
-        
         Construct(strValue);
     };
 
     // Plus operator's overloading // HugeInt + HugeInt 
     HugeInt operator + (const HugeInt& arg) const {
-        const HugeInt* firstNumber, *secondNumber;
-        string result = "";
+        const HugeInt* longNum, *shortNum;
+        string strResult = "";
+        int keepedInMind = 0;
 
-        // Choosing longer integer as firstNumber
+        // Choosing longer integer as longNum
         if (this->length>= arg.length) {
-            firstNumber = this;
-            secondNumber = &arg;
+            longNum = this;
+            shortNum = &arg;
         } 
         else {
-            firstNumber = &arg;
-            secondNumber = this;
+            longNum = &arg;
+            shortNum = this;
         }
 
-        for (int i = 0; i < firstNumber->length; i++) {
-            int fCurrentDigit, sCurrentDigit = 0;
-            fCurrentDigit = firstNumber->length - 1 - i;
-            if (i< secondNumber->length) {
-                sCurrentDigit = secondNumber->length - 1 - i;
+        for (int i = 0; i < longNum->length; i++) {
+            // For both longer and shorter number's current digit's position
+            int lCurDigit, sCurDigit = -1, resultNum, point;
+            char charPoint;
+
+            lCurDigit = longNum->length - 1 - i;
+            if (i< shortNum->length) {
+                sCurDigit = shortNum->length - 1 - i;
             }
-            int resultDigit = to_int(firstNumber->value[fCurrentDigit]) + to_int(secondNumber->value[sCurrentDigit]);
-            char charResult = to_char(resultDigit);
 
-            cout << charResult << endl;
+            resultNum = keepedInMind + to_int(longNum->value[lCurDigit]) + (sCurDigit != -1 ? to_int(shortNum->value[sCurDigit]) : 0);
+            keepedInMind = resultNum / 10;
+            point = resultNum % 10;
+            charPoint = to_char(point);
 
-            result.insert(0, 1, charResult);
+            strResult.insert(0, 1, charPoint);
         }
-        cout << "REsult: " << result << endl;
+        if(keepedInMind) strResult.insert(0, 1, to_char(keepedInMind));
+        HugeInt result = strResult;
 
-        return  this->value + arg.value;
+        return  result;
     };
 
-    //HugeInt operator * (const HugeInt& arg) const;
+    HugeInt operator * (const HugeInt& arg) const {
+        const HugeInt* longNum, * shortNum;
+        HugeInt result = 0;
+        int keepedInMind = 0;
+        // Choosing longer integer as longNum
+        if (this->length >= arg.length) {
+            longNum = this;
+            shortNum = &arg;
+        }
+        else {
+            longNum = &arg;
+            shortNum = this;
+        }
+
+        for (int i = 0; i < shortNum->length; i++) {
+            // For both longer and shorter number's current digit's position
+            int sCurDigit = shortNum->length - 1 - i;
+            HugeInt sumer = 0;
+
+            for(int j = 0; j < longNum->length; j++) {
+                int lCurDigit = longNum->length - 1 - j;
+                HugeInt currentResult = to_int(longNum->value[lCurDigit]) * to_int(shortNum->value[sCurDigit]);
+                string helper = concatZero(currentResult.value, j);
+
+                sumer = sumer + helper;
+            }
+            string helper = concatZero(sumer.value, i);
+            result = result + helper;
+
+        }
+
+        return result;
+    };
 
     void print() {
         cout << this->value<<endl;
     }
 
-
     int getLength() {
         return this->length;
     }
     
-
 private:
     string value;
     bool isNegative;
     int length;
 
-
     // Function for string | const char* values
     void Construct(string value) {
-        regex int_expr("([+-]?[1-9]\d*|0)+");
+        regex int_expr("^[+-]?(0|[1-9][0-9]*)$");
 
         // Regex validation
         if (regex_match(value, int_expr)){
@@ -97,30 +138,21 @@ private:
             this->value = value;
 
             // Chech if value is negative
-            this->isNegative = isNegative ? true : false;
+            this->isNegative = isNegative;
             this->length = isNegative ? this->value.length() - 1 : this->value.length();
-
-            cout << endl << this->length  << endl;
          }
-        else
-        {
+        else {
             cout <<endl<< "Invalid value : "<<value<<" is not an integer" << endl;
         }
     }
-
-    
-
-
 };
-
-
 
 int main()
 {
-    int aaa = 54;
-    cout << aaa << endl;
-    HugeInt a = "12345";
-    HugeInt b = 54321;
-    HugeInt c = a + b;
+    int aaa = 2419;
+    // cout << aaa << endl;
+    HugeInt a = "316";
+    HugeInt b = 999;
+    HugeInt c = a * aaa;
     c.print();
 }
