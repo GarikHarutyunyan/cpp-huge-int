@@ -377,23 +377,27 @@ private:
         regex int_expr("^[+-]?(0|[1-9][0-9]*)$");
 
         // Regex validation
-        if (regex_match(value, int_expr)){
-            this->isNegative = value[0] == '-';
+        try {
+            if (regex_match(value, int_expr)) {
+                this->isNegative = value[0] == '-';
 
-            if (this->isNegative) {    
-                this->value = value.erase(0,1);
-                if (this->value == "0") {
-                    this->isNegative = false;
+                if (this->isNegative) {
+                    this->value = value.erase(0, 1);
+                    if (this->value == "0") {
+                        this->isNegative = false;
+                    }
                 }
+                else {
+                    this->value = value;
+                }
+                this->length = this->value.length();
             }
             else {
-                this->value = value;
+                throw value;
             }
-            this->length = this->value.length();
-         }
-        else {
-            cout <<endl<< "Invalid value : "<<value<<" is not an integer" << endl;
-            abort();
+        }
+        catch (string value) {
+            cerr << "Invalid value : " << value << " is not an integer" << endl;
         }
     }
 
